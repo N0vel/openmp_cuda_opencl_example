@@ -2,13 +2,14 @@
 #include "BMP.h"
 #include <cmath>
 #include <omp.h>
-#include <chrono>
+#include <ctime>
+
 using namespace std;
 
 int main() {
-	using clock = std::chrono::system_clock;
-	using ms = std::chrono::milliseconds;
 	char images [3][50] = {"1024x768.bmp", "1280x960.bmp", "2048x1536.bmp"};
+	clock_t start, stop;
+
 	for (int v=0; v<3; v++)
 	{
 		BMP bmp(images[v]);
@@ -23,7 +24,7 @@ int main() {
 				n_threads = number_of_threads[i];
 				omp_set_num_threads( n_threads );
 				filtered_image = bmp;
-				const auto before = clock::now();
+				start = clock();
 				#pragma omp parallel
 				{
 					int threadnum = omp_get_thread_num(), numthreads = omp_get_num_threads();
@@ -66,9 +67,9 @@ int main() {
 						}
 					}
 				}
-				const auto duration = std::chrono::duration_cast<ms>(clock::now() - before);
+				stop = clock();
 				filtered_image.write(("gauss_filtered" + to_string(v)+".bmp").c_str());
-				mean_time += duration.count()/3000.;
+				mean_time += (stop - start) / (double)CLOCKS_PER_SEC * 1000.0 /3.;
 			}
 			cout << n_threads << " threads. " << "It took " << mean_time << "ms" << std::endl;
 			mean_time = 0.;

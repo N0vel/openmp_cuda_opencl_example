@@ -1,4 +1,3 @@
-//The Gaussian blur function that runs on the gpu
 __kernel void gaussian_blur(__global const float *image, __global const float* G, const int W, const int H, __global float * newImg) 
 { 
 	unsigned int x, y, imgLineSize;
